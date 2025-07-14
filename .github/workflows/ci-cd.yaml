@@ -82,7 +82,7 @@ jobs:
           echo "🔧 Image built and pushed: ${{ steps.build.outputs.image_uri }}"
 
   update-manifest:
-    needs: [detect-changes, build-and-test]
+    needs: detect-changes
     if: needs.detect-changes.outputs.k8s == 'true' || needs.detect-changes.outputs.app == 'true'
     runs-on: ubuntu-latest
     steps:
