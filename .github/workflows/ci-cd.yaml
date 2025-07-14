@@ -88,17 +88,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Lint Kubernetes YAMLs
-        uses: ibiqlik/action-yamllint@v3
-        with:
-          path: k8s/
-
-      - name: Dry-run validate Kubernetes manifests
-        uses: azure/k8s-validation-action@v1
+      - name: Validate Kubernetes manifests (lint & dry-run)
+        uses: azure/k8s-lint@v3
         with:
           manifests: |
             k8s/
-          validationType: dryrun
+          lintType: kubeconform,dryrun
 
       - name: Update manifest
         run: |
