@@ -10,7 +10,7 @@ spec:
   project: default
   source:
     repoURL: https://github.com/omerharush93/perion-home-task.git
-    targetRevision: HEAD
+    targetRevision: main
     path: k8s
   destination:
     server: https://kubernetes.default.svc
