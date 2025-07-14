@@ -5,7 +5,7 @@ metadata:
   namespace: default
   labels:
     app: hello-world-node
-    version: "c31fbc5a6aab4cf55a71b9bc59e81e7db55bed87"
+    version: "1dd051fd6a6b9097a8f664f55e51f45d78979707"
 
 spec:
   replicas: 3  # High Availability - לפחות 3 replicas
@@ -21,7 +21,7 @@ spec:
     metadata:
       labels:
         app: hello-world-node
-        version: "c31fbc5a6aab4cf55a71b9bc59e81e7db55bed87"
+        version: "1dd051fd6a6b9097a8f664f55e51f45d78979707"
 
     spec:
       # Pod Anti-Affinity - עונה על דרישת multi-AZ replica distribution
@@ -47,7 +47,7 @@ spec:
                 - linux
       containers:
       - name: hello-world-node
-        image: 760370564012.dkr.ecr.us-east-1.amazonaws.com/omer/hello-world-node:c31fbc5a6aab4cf55a71b9bc59e81e7db55bed87
+        image: 760370564012.dkr.ecr.us-east-1.amazonaws.com/omer/hello-world-node:1dd051fd6a6b9097a8f664f55e51f45d78979707
         ports:
         - containerPort: 3000
           name: http
