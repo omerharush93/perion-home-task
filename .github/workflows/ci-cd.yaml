@@ -43,14 +43,17 @@ jobs:
       image_uri: ${{ steps.build.outputs.image_uri }}
     steps:
       - uses: actions/checkout@v4
+      
       - uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
+      
       - name: Login ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
+      
       - name: Build & push Docker image
         id: build
         run: |
@@ -58,15 +61,17 @@ jobs:
           docker build -t ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }} .
           docker push ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}
           echo "image_uri=${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}" >> $GITHUB_OUTPUT
+      
       - name: Run tests
         run: |
           cd app/hello-world-node
           npm install
           npm test || true
+
       - name: Security scan
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: ${{ needs.build-and-test.outputs.image_uri }}
+          image-ref: ${{ steps.build.outputs.image_uri }}
           format: sarif
           output: trivy-results.sarif
 
@@ -82,6 +87,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - name: Update manifest
         run: |
           if [[ "${{ needs.detect-changes.outputs.app }}" == "true" ]]; then
@@ -93,5 +99,8 @@ jobs:
           git add k8s/deployment.yaml
           git commit -m "Update k8s manifests" || echo "No changes"
           git push
+
       - name: Notify success
-        run: echo "✅ CI/CD completed – ArgoCD will sync."
+        if: success()
+        run: echo "✅ CI/CD pipeline completed successfully. ArgoCD will sync the latest changes."
+
