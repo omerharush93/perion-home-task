@@ -11,7 +11,7 @@ spec:
     kind: Deployment
     name: hello-world-node
   minReplicas: 3  # מינימום 3 replicas High Availability
-  maxReplicas: 9
+  maxReplicas: 10
   metrics:
   - type: Resource
     resource:
