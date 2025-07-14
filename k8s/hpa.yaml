@@ -18,7 +18,7 @@ spec:
       name: cpu
       target:
         type: Utilization
-        averageUtilization: 80  # HPA at 80% vCPU utilization
+        averageUtilization: 80  # HPA at 80% CPU
   - type: Resource
     resource:
       name: memory
