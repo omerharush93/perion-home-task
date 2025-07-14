@@ -1,0 +1,66 @@
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Docker
+*.tar
+*.img
+.docker/
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+override.tf
+override.tf.json
+terraform.tfvars
+*.tfplan
+.terraform.lock.hcl
+
+# VSCode / IDEs
+.vscode/
+.idea/
+*.swp
+
+# System
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# GitHub Actions artifacts
+trivy-results.sarif
+
+# ArgoCD
+.kube/
+.kubeconfig
+
+# AWS
+.aws/
+aws-credentials
+
+# Environment files
+.env
+.env.local
+
+# Temporary folders
+tmp/
+temp/
+
+# Backup files
+*.bak
+*.backup
+
+# Application specific
+app/hello-world-node.tar.gz
+
+# Scripts
+scripts/
+
+01-assignment-prompt.md
+project-structure.md
+setup-requirements.md

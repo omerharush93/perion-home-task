@@ -1,0 +1,106 @@
+# פתרון לבעיית הביצועים בשעה 10:00
+# עונה על Performance Challenge: "Every morning at 10:00 AM, the application experiences high traffic"
+
+# 1. CronJob לפרה-סקיילינג לפני העומס
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: pre-scale-hello-world
+  namespace: default
+spec:
+  schedule: "0 9 * * *"  # כל יום בשעה 9:00 (שעה לפני העומס)
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: scaling-sa
+          containers:
+          - name: kubectl
+            image: bitnami/kubectl:latest
+            command:
+            - /bin/sh
+            - -c
+            - |
+              # פריסה ל-6 replicas לפני העומס
+              kubectl scale deployment hello-world-node --replicas=6
+              echo "Pre-scaled to 6 replicas at $(date)"
+          restartPolicy: OnFailure
+---
+# 2. ServiceAccount עבור הסקיילינג
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: scaling-sa
+  namespace: default
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: scaling-role
+rules:
+- apiGroups: ["apps"]
+  resources: ["deployments"]
+  verbs: ["get", "patch", "update"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: scaling-role-binding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: scaling-role
+subjects:
+- kind: ServiceAccount
+  name: scaling-sa
+  namespace: default
+---
+
+# 3. Pod Disruption Budget להגנה על זמינות
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: hello-world-node-pdb
+  namespace: default
+spec:
+  minAvailable: 2  # לפחות 2 pods תמיד זמינים
+  selector:
+    matchLabels:
+      app: hello-world-node
+---
+# 4. Network Policy להגנה על התעבורה
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: hello-world-node-network-policy
+  namespace: default
+spec:
+  podSelector:
+    matchLabels:
+      app: hello-world-node
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: ingress-nginx
+    ports:
+    - protocol: TCP
+      port: 3000
+  egress:
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: logging
+    ports:
+    - protocol: TCP
+      port: 3100
+  - to: []
+    ports:
+    - protocol: TCP
+      port: 53
+    - protocol: UDP
+      port: 53 
