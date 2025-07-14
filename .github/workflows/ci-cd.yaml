@@ -61,7 +61,7 @@ jobs:
       - name: Run tests
         run: |
           cd app/hello-world-node
-          npm ci
+          npm install
           npm test || true
       - name: Security scan
         uses: aquasecurity/trivy-action@master
