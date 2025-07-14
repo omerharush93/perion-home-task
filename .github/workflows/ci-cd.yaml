@@ -88,21 +88,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y yamllint
-          curl -LO "https://dl.k8s.io/release/$(curl -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-          chmod +x kubectl
-          sudo mv kubectl /usr/local/bin/
+      - name: Lint Kubernetes YAMLs
+        uses: ibiqlik/action-yamllint@v3
+        with:
+          path: k8s/
 
-      - name: Lint k8s manifests
-        run: |
-          yamllint k8s/
-
-      - name: Dry-run Kubernetes manifests
-        run: |
-          kubectl apply --dry-run=client -f k8s/
+      - name: Dry-run validate Kubernetes manifests
+        uses: azure/k8s-validation-action@v1
+        with:
+          manifests: |
+            k8s/
+          validationType: dryrun
 
       - name: Update manifest
         run: |
@@ -119,4 +115,3 @@ jobs:
       - name: Notify success
         if: success()
         run: echo "✅ CI/CD pipeline completed successfully. ArgoCD will sync the latest changes."
-
