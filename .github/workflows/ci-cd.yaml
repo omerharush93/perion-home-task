@@ -44,14 +44,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # Setup Node.js with caching
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-          cache: 'npm'
-          cache-dependency-path: app/hello-world-node/package-lock.json
-
       # Install and test
       - name: Install dependencies & run tests
         run: |
