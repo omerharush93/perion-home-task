@@ -23,14 +23,6 @@ spec:
    spec:
      affinity:
        podAntiAffinity:
-         requiredDuringSchedulingIgnoredDuringExecution:
-         - labelSelector:
-             matchExpressions:
-             - key: app
-               operator: In
-               values:
-               - hello-world-node
-           topologyKey: topology.kubernetes.io/zone
          preferredDuringSchedulingIgnoredDuringExecution:
          - weight: 100
            podAffinityTerm:
@@ -40,7 +32,17 @@ spec:
                  operator: In
                  values:
                  - hello-world-node
-             topologyKey: kubernetes.io/hostname
+             topologyKey: topology.kubernetes.io/zone
+         
+         - weight: 80
+           podAffinityTerm:
+             labelSelector:
+               matchExpressions:
+               - key: app
+                 operator: In
+                 values:
+                 - hello-world-node
+             topologyKey: kubernetes.io/hostnamee
      containers:
      - name: hello-world-node
        image: 760370564012.dkr.ecr.us-east-1.amazonaws.com/omer/hello-world-node:82c73c44c75bb60c3d811ba8c33e2f18f11c4396
@@ -49,11 +51,11 @@ spec:
          name: http
        resources:
          requests:
-           memory: "128Mi"
-           cpu: "100m"
+          cpu: 100m
+          memory: 128Mi
          limits:
-           memory: "256Mi"
-           cpu: "200m"
+          cpu: 500m
+          memory: 512Mi
        livenessProbe:
          httpGet:
            path: /health
