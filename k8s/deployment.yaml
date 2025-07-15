@@ -5,7 +5,7 @@ metadata:
   namespace: default
   labels:
     app: hello-world-node
-    version: "62d08f4f2382423cffbd3b38ef0e94ce5bbd3dc7"
+    version: "cc3a115a6c03da5691303f79a593a0c8c4d8d462"
 spec:
   strategy:
     type: RollingUpdate
@@ -19,7 +19,7 @@ spec:
     metadata:
       labels:
         app: hello-world-node
-        version: "62d08f4f2382423cffbd3b38ef0e94ce5bbd3dc7"
+        version: "cc3a115a6c03da5691303f79a593a0c8c4d8d462"
     spec:
       affinity:
         podAntiAffinity:
@@ -44,7 +44,7 @@ spec:
                 topologyKey: kubernetes.io/hostnamee
       containers:
         - name: hello-world-node
-          image: 760370564012.dkr.ecr.us-east-1.amazonaws.com/omer/hello-world-node:62d08f4f2382423cffbd3b38ef0e94ce5bbd3dc7
+          image: 760370564012.dkr.ecr.us-east-1.amazonaws.com/omer/hello-world-node:cc3a115a6c03da5691303f79a593a0c8c4d8d462
           ports:
             - containerPort: 3000
               name: http
