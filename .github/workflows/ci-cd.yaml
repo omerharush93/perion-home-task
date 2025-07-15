@@ -22,11 +22,11 @@ jobs:
   detect-changes:
     runs-on: ubuntu-latest
     outputs:
-      app: ${{ steps.filter.outputs.app }}
-      k8s: ${{ steps.filter.outputs.k8s }}
+      app: ${{ steps.filter.outputs.app == 'true' || github.event_name == 'workflow_dispatch' }}
+      k8s: ${{ steps.filter.outputs.k8s == 'true' || github.event_name == 'workflow_dispatch' }}
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Detect changes
         id: filter
         if: github.event_name != 'workflow_dispatch'
@@ -37,12 +37,12 @@ jobs:
               - 'app/**'
             k8s:
               - 'k8s/**'
-      
+
       - name: Manual run - test all
         if: github.event_name == 'workflow_dispatch'
         run: |
-          echo "Manual workflow run - will test all components"
-          echo "app=true k8s=true"
+          echo "Manual workflow run detected"
+          echo "Will run full pipeline for all components"
 
   # Security and quality checks for PRs and main
   security-and-tests:
@@ -159,7 +159,6 @@ jobs:
           git add k8s/
           git commit -m "🚀 Update k8s manifests to ${{ github.sha }}"
           git push
-
   # PR feedback
   pr-checks:
     if: github.event_name == 'pull_request' && always()
@@ -187,7 +186,6 @@ jobs:
               repo: context.repo.repo,
               body: `## Pull Request Validation Results\n\n${status}`
             });
-
 
   # Completion notification
   notify-success:
