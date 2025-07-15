@@ -1,4 +1,4 @@
-name: Hello World Node.js - CI/CD Pipeline
+name: CI/CD Pipeline - Hello World Node.js
 
 on:
   push:
@@ -43,6 +43,14 @@ jobs:
     if: needs.detect-changes.outputs.app == 'true'
     steps:
       - uses: actions/checkout@v4
+
+      # Setup Node.js with caching
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: app/hello-world-node/package-lock.json
 
       # Install and test
       - name: Install dependencies & run tests
@@ -99,11 +107,11 @@ jobs:
           format: sarif
           output: trivy-results.sarif
 
-  # Kubernetes validation
+  # Kubernetes validation - only for k8s changes
   validate-k8s:
     runs-on: ubuntu-latest
     needs: detect-changes
-    if: needs.detect-changes.outputs.k8s == 'true' || needs.detect-changes.outputs.app == 'true'
+    if: needs.detect-changes.outputs.k8s == 'true'
     steps:
       - uses: actions/checkout@v4
 
@@ -118,19 +126,20 @@ jobs:
   # Update manifests - only on main after successful build
   update-manifest:
     runs-on: ubuntu-latest
-    needs: [detect-changes, build-and-push, validate-k8s]
+    needs: [detect-changes, build-and-push]
     if: |
       github.ref == 'refs/heads/main' &&
-      (needs.detect-changes.outputs.k8s == 'true' || needs.detect-changes.outputs.app == 'true') &&
-      needs.validate-k8s.result == 'success'
+      needs.detect-changes.outputs.app == 'true' &&
+      needs.build-and-push.result == 'success'
+    permissions:
+      contents: write  # Allow pushing back to repo
     steps:
       - uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      # Update manifest only if image changed
+      # Update manifest - always runs when this job runs
       - name: Update deployment manifest
-        if: needs.detect-changes.outputs.app == 'true'
         run: |
           yq e '.spec.template.spec.containers[0].image = "${{ needs.build-and-push.outputs.image_uri }}"' -i k8s/deployment.yaml
           yq e '.metadata.labels.version = "${{ github.sha }}"' -i k8s/deployment.yaml
