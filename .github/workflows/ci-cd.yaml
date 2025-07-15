@@ -25,6 +25,8 @@ jobs:
       app: ${{ steps.filter.outputs.app }}
       k8s: ${{ steps.filter.outputs.k8s }}
     steps:
+      - uses: actions/checkout@v4
+      
       - name: Detect changes
         id: filter
         if: github.event_name != 'workflow_dispatch'
