@@ -1,0 +1,100 @@
+# cluster-autoscaler-values.yaml
+# Values file for Cluster Autoscaler Helm Chart
+
+# AWS Configuration
+cloudProvider: aws
+awsRegion: ${aws_region}
+
+# Auto Discovery Configuration
+autoDiscovery:
+  clusterName: ${cluster_name}
+  enabled: true
+
+# RBAC & Service Account (IRSA)
+rbac:
+  create: true
+  serviceAccount:
+    create: true
+    name: cluster-autoscaler
+    annotations:
+      eks.amazonaws.com/role-arn: ${iam_role_arn}
+
+# Performance Optimizations for Performance Challenge (10:00 AM)
+extraArgs:
+  # Scale-down settings - aggressive for cost optimization
+  scale-down-enabled: true
+  scale-down-delay-after-add: 5m        # Default: 10m
+  scale-down-unneeded-time: 5m          # Default: 10m  
+  scale-down-utilization-threshold: 0.5 # Scale down at 50% utilization
+  
+  # Scale-up settings - fast response for Performance Challenge
+  scan-interval: 10s                    # Check every 10s (default: 30s)
+  max-node-provision-time: 15m          # Allow time for EC2 startup
+  
+  # Advanced settings
+  balance-similar-node-groups: true     # Distribute load evenly
+  skip-nodes-with-local-storage: false  # Don't skip nodes with local storage
+  expander: least-waste                 # Choose most efficient node type
+  
+  # Logging
+  v: 4                                  # Verbose logging
+  logtostderr: true
+  stderrthreshold: info
+
+# Resource Management
+resources:
+  limits:
+    cpu: 100m
+    memory: 300Mi
+  requests:
+    cpu: 100m
+    memory: 300Mi
+
+# High Availability & Reliability
+replicaCount: 1  # CA uses leader-election, only 1 replica needed
+priorityClassName: system-cluster-critical
+
+# Security & Anti-Eviction
+podAnnotations:
+  cluster-autoscaler.kubernetes.io/safe-to-evict: "false"
+
+# Node Scheduling
+nodeSelector:
+  kubernetes.io/os: linux
+
+tolerations:
+  - key: CriticalAddonsOnly
+    operator: Exists
+
+# Image Configuration (latest stable)
+image:
+  repository: registry.k8s.io/autoscaling/cluster-autoscaler
+  tag: v1.31.0  # Compatible with EKS 1.31
+  pullPolicy: IfNotPresent
+
+# Monitoring & Observability
+service:
+  create: true
+  type: ClusterIP
+  port: 8085
+
+serviceMonitor:
+  enabled: false  # Set to true if you have Prometheus Operator
+
+# Logging
+extraEnvVars:
+  - name: AWS_REGION
+    value: ${aws_region}
+
+# Pod Security Context
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 65534
+  fsGroup: 65534
+
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
+  readOnlyRootFilesystem: true
