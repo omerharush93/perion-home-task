@@ -1,0 +1,54 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+ name: hello-world-node-pdb
+ namespace: default
+spec:
+ minAvailable: 2
+ selector:
+   matchLabels:
+     app: hello-world-node
+---
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+ name: hello-world-node-scaler
+ namespace: default
+spec:
+ scaleTargetRef:
+   name: hello-world-node
+ minReplicaCount: 3
+ maxReplicaCount: 10
+ pollingInterval: 30
+ cooldownPeriod: 300
+ advanced:
+   horizontalPodAutoscalerConfig:
+     behavior:
+       scaleUp:
+         stabilizationWindowSeconds: 15
+         policies:
+         - type: Percent
+           value: 300
+           periodSeconds: 15
+         - type: Pods
+           value: 5
+           periodSeconds: 15
+         selectPolicy: Max
+       scaleDown:
+         stabilizationWindowSeconds: 300
+         policies:
+         - type: Percent
+           value: 10
+           periodSeconds: 60
+         selectPolicy: Min
+ triggers:
+ - type: cpu
+   metadata:
+     type: Utilization
+     value: "80"
+ - type: cron
+   metadata:
+     timezone: Asia/Jerusalem
+     start: "45 9 * * 1-5"
+     end: "0 13 * * 1-5"
+     desiredReplicas: "6"
