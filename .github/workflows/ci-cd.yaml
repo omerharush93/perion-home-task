@@ -99,8 +99,10 @@ jobs:
       - name: Update manifest
         run: |
           if [[ "${{ needs.detect-changes.outputs.app }}" == "true" ]]; then
-            sed -i "s|image:.*|image: ${{ needs.build-and-test.outputs.image_uri }}|g" k8s/deployment.yaml
-            sed -i "s|version:.*|version: \"${{ github.sha }}\"|g" k8s/deployment.yaml
+            yq e '.spec.template.spec.containers[0].image = "${{ needs.build-and-push.outputs.image_uri }}"' -i k8s/deployment.yaml
+            
+            yq e '.metadata.labels.version = "${{ github.sha }}"' -i k8s/deployment.yaml
+            yq e '.spec.template.metadata.labels.version = "${{ github.sha }}"' -i k8s/deployment.yaml
           fi
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
