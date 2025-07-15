@@ -25,9 +25,9 @@ jobs:
       app: ${{ steps.filter.outputs.app }}
       k8s: ${{ steps.filter.outputs.k8s }}
     steps:
-      - uses: actions/checkout@v4
       - name: Detect changes
         id: filter
+        if: github.event_name != 'workflow_dispatch'
         uses: dorny/paths-filter@v3
         with:
           filters: |
@@ -35,8 +35,12 @@ jobs:
               - 'app/**'
             k8s:
               - 'k8s/**'
-          # For manual runs, check against main branch
-          base: ${{ github.event_name == 'workflow_dispatch' && 'main' || '' }}
+      
+      - name: Manual run - test all
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          echo "Manual workflow run - will test all components"
+          echo "app=true k8s=true"
 
   # Security and quality checks for PRs and main
   security-and-tests:
