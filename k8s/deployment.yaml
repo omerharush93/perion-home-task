@@ -1,81 +1,80 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
- name: hello-world-node
- namespace: default
- labels:
-   app: hello-world-node
-   version: "1b84e836d92486e15a9bb97099de1ec0b345d6db"
+  name: hello-world-node
+  namespace: default
+  labels:
+    app: hello-world-node
+    version: "a4e5096554df2bb87d8aee782987a22433cf60d4"
 spec:
- strategy:
-   type: RollingUpdate
-   rollingUpdate:
-     maxSurge: 50%
-     maxUnavailable: 0%
- selector:
-   matchLabels:
-     app: hello-world-node
- template:
-   metadata:
-     labels:
-       app: hello-world-node
-       version: "1b84e836d92486e15a9bb97099de1ec0b345d6db"
-   spec:
-     affinity:
-       podAntiAffinity:
-         preferredDuringSchedulingIgnoredDuringExecution:
-         - weight: 100
-           podAffinityTerm:
-             labelSelector:
-               matchExpressions:
-               - key: app
-                 operator: In
-                 values:
-                 - hello-world-node
-             topologyKey: topology.kubernetes.io/zone
-         
-         - weight: 80
-           podAffinityTerm:
-             labelSelector:
-               matchExpressions:
-               - key: app
-                 operator: In
-                 values:
-                 - hello-world-node
-             topologyKey: kubernetes.io/hostnamee
-     containers:
-     - name: hello-world-node
-       image: 
-       ports:
-       - containerPort: 3000
-         name: http
-       resources:
-         requests:
-          cpu: 100m
-          memory: 128Mi
-         limits:
-          cpu: 500m
-          memory: 512Mi
-       livenessProbe:
-         httpGet:
-           path: /health
-           port: 3000
-         initialDelaySeconds: 15
-         periodSeconds: 20
-         timeoutSeconds: 5
-         failureThreshold: 3
-       readinessProbe:
-         httpGet:
-           path: /ready
-           port: 3000
-         initialDelaySeconds: 5
-         periodSeconds: 10
-         timeoutSeconds: 3
-         failureThreshold: 3
-       env:
-       - name: NODE_ENV
-         value: "production"
-       - name: PORT
-         value: "3000"
-     restartPolicy: Always
-     terminationGracePeriodSeconds: 30
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 50%
+      maxUnavailable: 0%
+  selector:
+    matchLabels:
+      app: hello-world-node
+  template:
+    metadata:
+      labels:
+        app: hello-world-node
+        version: "a4e5096554df2bb87d8aee782987a22433cf60d4"
+    spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                        - hello-world-node
+                topologyKey: topology.kubernetes.io/zone
+            - weight: 80
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                        - hello-world-node
+                topologyKey: kubernetes.io/hostnamee
+      containers:
+        - name: hello-world-node
+          image: 760370564012.dkr.ecr.us-east-1.amazonaws.com/omer/hello-world-node:a4e5096554df2bb87d8aee782987a22433cf60d4
+          ports:
+            - containerPort: 3000
+              name: http
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            initialDelaySeconds: 15
+            periodSeconds: 20
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3
+          env:
+            - name: NODE_ENV
+              value: "production"
+            - name: PORT
+              value: "3000"
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
