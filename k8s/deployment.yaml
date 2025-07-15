@@ -5,7 +5,7 @@ metadata:
  namespace: default
  labels:
    app: hello-world-node
-   version: "462cb94ef706636ae1549e956b021f05780f4b21"
+   version: "82c73c44c75bb60c3d811ba8c33e2f18f11c4396"
 spec:
  strategy:
    type: RollingUpdate
@@ -19,7 +19,7 @@ spec:
    metadata:
      labels:
        app: hello-world-node
-       version: "462cb94ef706636ae1549e956b021f05780f4b21"
+       version: "82c73c44c75bb60c3d811ba8c33e2f18f11c4396"
    spec:
      affinity:
        podAntiAffinity:
