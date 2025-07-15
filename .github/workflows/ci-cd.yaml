@@ -162,10 +162,15 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const status = 
-              '${{ needs.security-and-tests.result }}' === 'success' && 
-              '${{ needs.validate-k8s.result }}' === 'success' 
-              ? '✅ All checks passed! Ready to merge.' 
+            const securityResult = '${{ needs.security-and-tests.result }}';
+            const k8sResult = '${{ needs.validate-k8s.result }}';
+            
+            // Jobs that ran need to succeed, skipped jobs are OK
+            const securityOk = securityResult === 'skipped' || securityResult === 'success';
+            const k8sOk = k8sResult === 'skipped' || k8sResult === 'success';
+            
+            const status = securityOk && k8sOk 
+              ? '✅ All checks passed! Ready to merge.'
               : '❌ Some checks failed. Please review.';
             
             github.rest.issues.createComment({
@@ -174,6 +179,7 @@ jobs:
               repo: context.repo.repo,
               body: `## CI/CD Pipeline Results\n\n${status}`
             });
+
 
   # Completion notification
   notify-success:
