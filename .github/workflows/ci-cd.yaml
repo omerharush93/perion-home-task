@@ -129,6 +129,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          persist-credentials: false
 
       # Update manifest - always runs when this job runs
       - name: Update deployment manifest
@@ -177,7 +178,7 @@ jobs:
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: `## CI/CD Pipeline Results\n\n${status}`
+              body: `## Pull Request Validation Results\n\n${status}`
             });
 
 
