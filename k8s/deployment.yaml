@@ -7,7 +7,6 @@ metadata:
    app: hello-world-node
    version: "1dd051fd6a6b9097a8f664f55e51f45d78979707"
 spec:
- replicas: 2
  strategy:
    type: RollingUpdate
    rollingUpdate:

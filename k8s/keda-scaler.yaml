@@ -17,7 +17,7 @@ metadata:
 spec:
  scaleTargetRef:
    name: hello-world-node
- minReplicaCount: 3
+ minReplicaCount: 2
  maxReplicaCount: 10
  pollingInterval: 30
  cooldownPeriod: 300
