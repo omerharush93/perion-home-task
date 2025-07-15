@@ -91,7 +91,7 @@ jobs:
       - name: Validate Kubernetes manifests (lint & dry-run)
         uses: azure/k8s-lint@v3
         with:
-          kubeconformOpts: '-summary -schema-location default -schema-location "https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json"'
+          kubeconformOpts: "-summary -schema-location default -schema-location https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/keda.sh/scaledobject_v1alpha1.json"
           manifests: |
             k8s/
           lintType: kubeconform,dryrun
