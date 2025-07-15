@@ -35,7 +35,7 @@ jobs:
             k8s:
               - 'k8s/**'
 
-  build-and-test:
+  build-and-push:
     needs: detect-changes
     if: needs.detect-changes.outputs.app == 'true'
     runs-on: ubuntu-latest
@@ -91,6 +91,7 @@ jobs:
       - name: Validate Kubernetes manifests (lint & dry-run)
         uses: azure/k8s-lint@v3
         with:
+          kubeconformOpts: -summary -schema-location default -schema-location 'https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json'
           manifests: |
             k8s/
           lintType: kubeconform,dryrun
