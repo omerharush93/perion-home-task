@@ -43,7 +43,7 @@ spec:
              topologyKey: kubernetes.io/hostname
      containers:
      - name: hello-world-node
-       image: 
+       image: 760370564012.dkr.ecr.us-east-1.amazonaws.com/omer/hello-world-node:82c73c44c75bb60c3d811ba8c33e2f18f11c4396
        ports:
        - containerPort: 3000
          name: http
