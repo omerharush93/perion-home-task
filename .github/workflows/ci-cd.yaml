@@ -35,6 +35,8 @@ jobs:
               - 'app/**'
             k8s:
               - 'k8s/**'
+          # For manual runs, check against main branch
+          base: ${{ github.event_name == 'workflow_dispatch' && 'main' || '' }}
 
   # Security and quality checks for PRs and main
   security-and-tests:
