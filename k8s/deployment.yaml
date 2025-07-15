@@ -34,7 +34,7 @@ spec:
                  - hello-world-node
              topologyKey: topology.kubernetes.io/zone
          
-         - weight: 50
+         - weight: 80
            podAffinityTerm:
              labelSelector:
                matchExpressions:
