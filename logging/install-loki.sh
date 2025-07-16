@@ -1,32 +1,31 @@
 #!/bin/bash
-# Script install logging stack (Standalone) + Promtail + Grafana
+# Script to install logging stack (Standalone) + Promtail + Grafana
 
 set -euo pipefail
 
-echo "📊 מתחיל התקנת Loki logging stack..."
+echo "📊 Starting Loki logging stack installation..."
 
-# 1. הוספת Helm repo של Grafana
-echo "📦 מוסיף Grafana Helm repo..."
+# 1. Add Grafana Helm repo
+echo "📦 Adding Grafana Helm repo..."
 helm repo add grafana https://grafana.github.io/helm-charts
 helm repo update
 
-# 2. התקנת Loki (SingleBinary) עם תצורה מתאימה
-echo "🔧 מתקין Loki (single-binary)..."
+# 2. Install Loki (SingleBinary) with appropriate configuration
+echo "🔧 Installing Loki (single-binary)..."
 helm upgrade --install loki grafana/loki \
   --namespace logging --create-namespace \
   -f values.yaml \
   --wait
 
-
-# 3. התקנת Promtail לאיסוף לוגים
-echo "📤 מתקין Promtail..."
+# 3. Install Promtail for log collection
+echo "📤 Installing Promtail..."
 helm upgrade --install promtail grafana/promtail \
   --namespace logging \
   --set loki.serviceName=loki \
   --wait
 
-# 4. התקנת Grafana עם datasource ללוגים
-echo "📈 מתקין Grafana..."
+# 4. Install Grafana with Loki datasource
+echo "📈 Installing Grafana..."
 helm upgrade --install grafana grafana/grafana \
   --namespace logging \
   --set adminPassword=admin123 \
@@ -38,8 +37,8 @@ helm upgrade --install grafana grafana/grafana \
   --set "datasources.datasources\.yaml.datasources[0].access=proxy" \
   --wait
 
-# 5. קונפיגורציה מותאמת ל-Promtail
-echo "⚙️ מיישם קונפיגורציה ל-Promtail..."
+# 5. Apply custom configuration for Promtail
+echo "⚙️ Applying configuration to Promtail..."
 kubectl -n logging apply -f - <<EOF
 apiVersion: v1
 kind: ConfigMap
@@ -76,8 +75,8 @@ data:
 EOF
 
 kubectl -n logging rollout restart daemonset promtail
-# 6. הדפסת פרטים לסיום
+# 6. Print summary details
 LB=$(kubectl -n logging get svc grafana -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
-echo "✅ התקנת Loki logging stack הושלמה!"
-echo "📊 Grafana UI: http://${LB:-<NodePort או IP>}"
-echo "🔑 משתמש: admin / סיסמה: admin123"
+echo "✅ Loki logging stack installation completed!"
+echo "📊 Grafana UI: http://${LB:-<NodePort or IP>}"
+echo "🔑 Username: admin / Password: admin123"
