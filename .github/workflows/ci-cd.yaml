@@ -124,7 +124,7 @@ jobs:
 
       - name: Lint Helm chart
         run: |
-          ct lint --charts charts/hello-world-node
+          ct lint --charts charts/hello-world-node --debug --verbose
           echo "✅ Helm chart validation completed"
 
   # Update manifests - only on main after successful build
