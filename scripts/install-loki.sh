@@ -3,6 +3,8 @@
 
 set -euo pipefail
 
+cd "$(dirname "$0")/../logging"
+
 echo "📊 Starting Loki logging stack installation..."
 
 # 1. Add Grafana Helm repo

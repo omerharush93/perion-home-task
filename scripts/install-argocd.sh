@@ -5,6 +5,8 @@
 
 set -e
 
+cd "$(dirname "$0")/../argocd"
+
 echo "🚀 Installing ArgoCD on EKS cluster..."
 
 # Add ArgoCD Helm repository

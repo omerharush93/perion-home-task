@@ -3,18 +3,18 @@
 ## 🔐 Security Best Practices
 
 ### 1. IAM Roles & Permissions
-- **Principle of Least Privilege**: כל משתמש/שירות מקבל רק הרשאות מינימליות נדרשות
-- **Service Accounts**: שימוש ב-Kubernetes Service Accounts במקום IAM users
-- **Role-Based Access Control (RBAC)**: הגדרת roles ספציפיים לכל namespace
+- **Principle of Least Privilege**: Each user/service receives only the minimum required permissions
+- **Service Accounts**: Use Kubernetes Service Accounts instead of IAM users
+- **Role-Based Access Control (RBAC)**: Define specific roles for each namespace
 
 ### 2. Network Security
-- **Network Policies**: הגבלת תעבורת רשת בין pods
-- **Private Subnets**: EKS nodes רק ב-private subnets
-- **Security Groups**: הגדרת security groups ספציפיים לכל רכיב
+- **Network Policies**: Restrict network traffic between pods
+- **Private Subnets**: EKS nodes only in private subnets
+- **Security Groups**: Define specific security groups for each component
 
 ### 3. Secrets Management
 ```yaml
-# שימוש ב-Kubernetes Secrets במקום environment variables
+# Use Kubernetes Secrets instead of environment variables
 apiVersion: v1
 kind: Secret
 metadata:
@@ -50,47 +50,30 @@ metadata:
     owner: omer
 ```
 
-## 📊 Monitoring & Observability
+## 📊 Observability & Logging
 
 ### 1. Health Checks
-- **Liveness Probe**: בדיקה שהאפליקציה עובדת
-- **Readiness Probe**: בדיקה שהאפליקציה מוכנה לקבל traffic
-- **Startup Probe**: בדיקה בזמן startup
+- **Liveness Probe**: Checks if the application is running
+- **Readiness Probe**: Checks if the application is ready to receive traffic
 
-### 2. Metrics Collection
-- **Prometheus**: איסוף metrics
-- **Grafana**: visualization
-- **Loki**: log aggregation
-
-### 3. Alerting
-```yaml
-# Prometheus Alert Rules
-groups:
-- name: app-alerts
-  rules:
-  - alert: HighCPUUsage
-    expr: container_cpu_usage_seconds_total > 0.8
-    for: 5m
-    labels:
-      severity: warning
-    annotations:
-      summary: "High CPU usage detected"
-```
+### 2. Logging & Visualization
+- **Loki + Promtail**: Collect and aggregate logs from all pods
+- **Grafana**: Visualize and analyze logs
 
 ## 🔄 High Availability (HA)
 
 ### 1. Multi-AZ Deployment
-- **Pod Anti-Affinity**: pods לא על אותו node
-- **Node Affinity**: pods על nodes מתאימים
-- **Replica Distribution**: לפחות 3 replicas
+- **Pod Anti-Affinity**: Pods are not scheduled on the same node or AZ
+- **Node Affinity**: Pods run on suitable nodes
+- **Replica Distribution**: At least 3 replicas always available
 
 ### 2. Rolling Updates
 ```yaml
 strategy:
   type: RollingUpdate
   rollingUpdate:
-    maxSurge: 1
-    maxUnavailable: 0
+    maxSurge: 50%
+    maxUnavailable: 0%
 ```
 
 ### 3. Pod Disruption Budget
@@ -104,57 +87,49 @@ spec:
 ## ⚡ Performance Optimization
 
 ### 1. Resource Management
-- **Resource Requests/Limits**: הגדרת משאבים מתאימים
-- **Vertical Pod Autoscaler**: אופטימיזציה אוטומטית של משאבים
-- **Horizontal Pod Autoscaler**: סקיילינג אופקי לפי עומס
+- **Resource Requests/Limits**: Set appropriate resources for each pod
+- **Horizontal Pod Autoscaler (HPA) / KEDA**: Scale pods based on CPU utilization and scheduled events
 
 ### 2. Pre-scaling Strategy
-- **CronJob**: פריסה מוקדמת לפני עומס צפוי
-- **Predictive Scaling**: שימוש ב-machine learning לניבוי עומס
-- **Scheduled Scaling**: סקיילינג לפי לוח זמנים
-
-### 3. Caching
-- **Redis**: caching עבור נתונים דינמיים
-- **CDN**: caching עבור static content
-- **Application Caching**: in-memory caching
+- **KEDA Cron Trigger**: Pre-scale before expected load
+- **Scheduled Scaling**: Scale by schedule
 
 ## 🔧 CI/CD Best Practices
 
 ### 1. Pipeline Security
-- **Secrets Management**: שימוש ב-GitHub Secrets
-- **Image Scanning**: סריקת Docker images
-- **Dependency Scanning**: סריקת dependencies
+- **Secrets Management**: Use GitHub Secrets
+- **Image Scanning**: Scan Docker images for vulnerabilities
+- **Dependency Scanning**: Scan dependencies for vulnerabilities
 
 ### 2. Deployment Strategy
-- **Blue-Green**: zero-downtime deployments
-- **Canary**: gradual rollout
-- **Rollback Strategy**: יכולת חזרה לגרסה קודמת
+- **Blue-Green**: Zero-downtime deployments
+- **Canary**: Gradual rollout
+- **Rollback Strategy**: Ability to revert to previous version
 
 ### 3. Testing
-- **Unit Tests**: בדיקות יחידה
-- **Integration Tests**: בדיקות אינטגרציה
-- **Load Tests**: בדיקות עומס
+- **Unit Tests**: Unit testing
+- **Integration Tests**: Integration testing
+- **Load Tests**: Load testing (if relevant)
 
 ## 📝 Documentation
 
 ### 1. Code Documentation
-- **README.md**: תיאור הפרויקט
-- **API Documentation**: תיעוד API
-- **Architecture Diagrams**: דיאגרמות ארכיטקטורה
+- **README.md**: Project description
+- **API Documentation**: API documentation (if relevant)
+- **Architecture Diagrams**: Architecture diagrams
 
 ### 2. Runbooks
-- **Deployment Procedures**: נהלי פריסה
-- **Troubleshooting Guides**: מדריכי פתרון בעיות
-- **Emergency Procedures**: נהלי חירום
+- **Deployment Procedures**: Deployment procedures
+- **Troubleshooting Guides**: Troubleshooting guides
+- **Emergency Procedures**: Emergency procedures
 
 ## 🚀 Disaster Recovery
 
 ### 1. Backup Strategy
-- **Database Backups**: גיבוי מסד נתונים
-- **Configuration Backups**: גיבוי קונפיגורציה
-- **State Backups**: גיבוי Terraform state
+- **Configuration Backups**: Backup configuration files
+- **State Backups**: Backup Terraform state
 
 ### 2. Recovery Procedures
-- **RTO (Recovery Time Objective)**: זמן התאוששות מקסימלי
-- **RPO (Recovery Point Objective)**: אובדן נתונים מקסימלי
-- **Testing**: בדיקת נהלי התאוששות 
+- **RTO (Recovery Time Objective)**: Maximum recovery time
+- **RPO (Recovery Point Objective)**: Maximum data loss
+- **Testing**: Test recovery procedures 

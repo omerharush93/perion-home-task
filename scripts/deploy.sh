@@ -5,6 +5,8 @@
 
 set -e
 
+cd "$(dirname "$0")/../terraform"
+
 echo "🚀 Starting Perion infrastructure provisioning..."
 
 # Check installations
