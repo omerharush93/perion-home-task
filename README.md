@@ -24,7 +24,6 @@ For a full breakdown of the project layout and folder purposes, refer to [docs/p
 
 ## 🏗️ Architecture
 
-The complete system architecture, including all main AWS, Kubernetes, CI/CD, and logging components, is illustrated below: 
 ![System Architecture](docs/architecture.png)
 
 ## 🛠️ Technologies
