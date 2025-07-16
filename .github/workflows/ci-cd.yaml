@@ -126,10 +126,8 @@ jobs:
 
       - name: Lint Helm chart
         run: |
-          ct lint --charts charts/hello-world-node \
-            --validate-maintainers=false \
-            --check-version-increment=false
-          echo "✅ Helm chart validation completed" completed"
+          ct lint --charts charts/hello-world-node --validate-maintainers=false
+          echo "✅ Helm chart validation completed"
 
   # Update manifests - only on main after successful build
   update-manifest:
