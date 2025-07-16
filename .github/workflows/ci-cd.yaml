@@ -65,8 +65,8 @@ jobs:
     runs-on: ubuntu-latest
     needs: [detect-changes, security-and-tests]
     if: |
-      github.ref == 'refs/heads/main' && 
-      needs.detect-changes.outputs.app == 'true' &&
+      github.ref == 'refs/heads/main' &&
+      (needs.detect-changes.outputs.app == 'true' || github.event_name == 'workflow_dispatch') &&
       needs.security-and-tests.result == 'success' &&
       (needs.validate-charts.result == 'success' || needs.validate-charts.result == 'skipped')
 
