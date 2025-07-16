@@ -63,13 +63,11 @@ jobs:
   # Build and push - only on main branch
   build-and-push:
     runs-on: ubuntu-latest
-    needs: [detect-changes, security-and-tests, validate-charts]
+    needs: [detect-changes, security-and-tests]
     if: |
       github.ref == 'refs/heads/main' &&
       needs.detect-changes.outputs.app == 'true' &&
-      needs.security-and-tests.result == 'success' &&
-      (needs.validate-charts.result == 'success' || needs.validate-charts.result == 'skipped')
-
+      needs.security-and-tests.result == 'success'
 
     outputs:
       image_uri: ${{ steps.build.outputs.image_uri }}
@@ -138,6 +136,7 @@ jobs:
       github.ref == 'refs/heads/main' &&
       needs.detect-changes.outputs.app == 'true' &&
       needs.build-and-push.result == 'success'
+
     permissions:
       contents: write
     steps:
