@@ -1,7 +1,7 @@
 # Image configuration
 image:
   repository: 760370564012.dkr.ecr.us-east-1.amazonaws.com/omer/hello-world-node
-  tag: "74589e6052c2787b44b96a8166a25d35925d680a"
+  tag: "086de6dbbd2d89c17d1f615a865a23ee764fba28"
 # Strategy configuration
 strategy:
   type: RollingUpdate
