@@ -1,15 +1,13 @@
 # Image configuration
 image:
   repository: 760370564012.dkr.ecr.us-east-1.amazonaws.com/omer/hello-world-node
-  tag: "cc3a115a6c03da5691303f79a593a0c8c4d8d462"
-
+  tag: "74589e6052c2787b44b96a8166a25d35925d680a"
 # Strategy configuration
 strategy:
   type: RollingUpdate
   rollingUpdate:
     maxSurge: 50%
     maxUnavailable: 0%
-
 # Resources
 resources:
   requests:
@@ -18,7 +16,6 @@ resources:
   limits:
     cpu: 500m
     memory: 512Mi
-
 # Probes
 livenessProbe:
   httpGet:
@@ -28,7 +25,6 @@ livenessProbe:
   periodSeconds: 20
   timeoutSeconds: 5
   failureThreshold: 3
-
 readinessProbe:
   httpGet:
     path: /ready
@@ -37,14 +33,12 @@ readinessProbe:
   periodSeconds: 10
   timeoutSeconds: 3
   failureThreshold: 3
-
 # Environment variables
 env:
   - name: NODE_ENV
     value: "production"
   - name: PORT
     value: "3000"
-
 # Service configuration
 service:
   name: hello-world-node-service
@@ -52,11 +46,9 @@ service:
   port: 80
   targetPort: 3000
   protocol: TCP
-
 # PDB configuration
 pdb:
   minAvailable: 2
-
 # Affinity (מהקובץ המקורי בדיוק)
 affinity:
   podAntiAffinity:
@@ -79,7 +71,6 @@ affinity:
                 values:
                   - hello-world-node
           topologyKey: kubernetes.io/hostname
-
 # KEDA scaling configuration
 scaling:
   minReplicaCount: 3
