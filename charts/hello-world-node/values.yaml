@@ -49,7 +49,7 @@ service:
 # PDB configuration
 pdb:
   minAvailable: 2
-# Affinity (מהקובץ המקורי בדיוק)
+# Affinity
 affinity:
   podAntiAffinity:
     preferredDuringSchedulingIgnoredDuringExecution:

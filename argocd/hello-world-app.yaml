@@ -11,10 +11,10 @@ spec:
   source:
     repoURL: https://github.com/omerharush93/perion-home-task.git
     targetRevision: main
-    path: charts/hello-world-node  # ← ArgoCD יודע איפה הchart
+    path: charts/hello-world-node  # ArgoCD knows where the chart is
     helm:
       valueFiles:
-        - values.yaml  
+        - values.yaml
   destination:
     server: https://kubernetes.default.svc
     namespace: hello-world-node
@@ -28,6 +28,4 @@ spec:
       limit: 5
       backoff:
         duration: 5s
-        factor: 2
-        maxDuration: 3m
   revisionHistoryLimit: 10 

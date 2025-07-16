@@ -17,7 +17,7 @@
 - [x] **GitOps deployment** עם ArgoCD
 - [x] **Logging stack** עם Loki + Grafana
 - [x] **High Availability** עם multi-AZ
-- [x] **KEDA ScaledObject** עם CPU + cron scaling
+- [x] **KEDA ScaledObject** עם CPU(80%) + cron pre-scaling
 - [x] **Cluster Autoscaler** לניהול Nodes
 
 ## 🏗️ ארכיטקטורה
@@ -108,15 +108,6 @@ helm upgrade --install hello-world-node ./helm/hello-world-node \
 - **Loki**: איסוף לוגים מכל pods
 - **Grafana**: visualization וניתוח
 
-### Metrics
-- **Prometheus**: איסוף metrics
-- **HPA**: סקיילינג אוטומטי לפי CPU/Memory
-- **VPA**: אופטימיזציה של משאבים
-
-### Alerts
-- High CPU usage (>80%)
-- Pod failures
-- Service unavailability
 
 ## ⚡ פתרון ביצועים - שעה 10:00
 
@@ -125,18 +116,22 @@ helm upgrade --install hello-world-node ./helm/hello-world-node \
 
 ### הפתרון
 1. **Pre-scaling**: CronJob שמריץ בשעה 9:00 ומעלה ל-6 replicas
-2. **VPA**: אופטימיזציה אוטומטית של משאבים
-3. **HPA**: סקיילינג מהיר לפי עומס
+3. **HPA**: סקיילינג מהיר לפי עומס במצב של 80% CPU
 4. **Pod Anti-Affinity**: פיזור replicas על nodes שונים
 
 ```yaml
-# CronJob לפרה-סקיילינג
-apiVersion: batch/v1
-kind: CronJob
-metadata:
-  name: pre-scale-hello-world
-spec:
-  schedule: "0 9 * * *"  # כל יום בשעה 9:00
+#  KEDA Scaler
+ triggers:
+ - type: cpu
+   metadata:
+     type: Utilization
+     value: "80" # HPA on 80% CPU
+ - type: cron
+   metadata:
+     timezone: Asia/Jerusalem
+     start: "45 9 * * *" # Every Morning 9:45 AM Pre-scling to 6 replicas
+     end: "0 13 * * *"
+     desiredReplicas: "6"
 ```
 
 ## 🔐 אבטחה
@@ -144,24 +139,20 @@ spec:
 ### IAM & RBAC
 - Principle of Least Privilege
 - Service Accounts במקום IAM users
-- Network Policies להגבלת תעבורה
 
-### Secrets Management
-- Kubernetes Secrets
-- AWS Secrets Manager (לפי הצורך)
-- Encrypted storage
 
 ### Network Security
 - Private subnets ל-EKS nodes
 - Security Groups ספציפיים
 - Network Policies בין pods
 
-## 📈 High Availability
-
-### Multi-AZ Deployment
-- Pod Anti-Affinity: pods לא על אותו node
-- Node Affinity: pods על nodes מתאימים
+### Multi-AZ Deployment + High Availability
+- Pod Anti-Affinity: pods לא על אותו node + לא על אותו AZ
 - לפחות 3 replicas תמיד זמינים
+- PDB
+- Rolling Updates
+- Cluster Autoscaler
+
 
 ### Rolling Updates
 ```yaml

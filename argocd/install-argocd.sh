@@ -1,19 +1,19 @@
 #!/bin/bash
 
-# Script להתקנת ArgoCD על EKS cluster
-# עונה על Setup Requirements: "Deploy hello-world-node using ArgoCD"
+# Script to install ArgoCD on EKS cluster
+# Implements Setup Requirements: "Deploy hello-world-node using ArgoCD"
 
 set -e
 
-echo "🚀 מתקין ArgoCD על EKS cluster..."
+echo "🚀 Installing ArgoCD on EKS cluster..."
 
-# הוספת ArgoCD Helm repository
-echo "📦 מוסיף ArgoCD Helm repository..."
+# Add ArgoCD Helm repository
+echo "📦 Adding ArgoCD Helm repository..."
 helm repo add argo https://argoproj.github.io/argo-helm
 helm repo update
 
-# התקנת ArgoCD
-echo "🔧 מתקין ArgoCD..."
+# Install ArgoCD
+echo "🔧 Installing ArgoCD..."
 helm upgrade --install argocd argo/argo-cd \
   --namespace argocd \
   --create-namespace \
@@ -22,43 +22,33 @@ helm upgrade --install argocd argo/argo-cd \
   --set server.service.type=ClusterIP \
   --wait
 
-# המתנה לזמינות ArgoCD
-echo "⏳ ממתין לזמינות ArgoCD..."
+# Wait for ArgoCD availability
+echo "⏳ Waiting for ArgoCD to become available..."
 kubectl wait --for=condition=available --timeout=300s deployment/argocd-server -n argocd
 
-# קבלת סיסמה ראשונית
-echo "🔑 סיסמה ראשונית ל-ArgoCD:"
+# Get initial password
+echo "🔑 Initial ArgoCD password:"
 kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
 echo ""
 
-# יצירת ServiceAccount עבור ArgoCD
-echo "👤 יוצר ServiceAccount עבור ArgoCD..."
+# Create ServiceAccount for ArgoCD
+echo "👤 Creating ServiceAccount for ArgoCD..."
 kubectl apply -f serviceaccount.yaml
 
-echo "✅ ArgoCD הותקן בהצלחה!"
+echo "✅ ArgoCD installed successfully!"
 
-# הגדרת Application (אם הקובץ קיים)
+# Configure Application (if file exists)
 if [ -f "hello-world-app.yaml" ]; then
-    echo "📋 מגדיר Application ב-ArgoCD..."
+    echo "📋 Configuring Application in ArgoCD..."
     kubectl apply -f hello-world-app.yaml
-    echo "✅ Application הוגדר!"
+    echo "✅ Application configured!"
 else
-    echo "⚠️  קובץ hello-world-app.yaml לא נמצא"
-    echo "   הגדר את האפליקציה ידנית דרך UI או CLI"
+    echo "⚠️  hello-world-app.yaml file not found"
+    echo "   Configure the application manually via UI or CLI"
 fi
 
-# הוראות גישה
+# Access instructions
 echo ""
-echo "🌐 הוראות גישה ל-ArgoCD:"
-echo "1. הרץ את הפקודה הבאה בטרמינל נפרד:"
+echo "🌐 Access instructions for ArgoCD:"
+echo "1. Run the following command in a separate terminal:"
 echo "   kubectl port-forward svc/argocd-server -n argocd 8080:80"
-echo ""
-echo "2. פתח דפדפן וגש ל:"
-echo "   http://localhost:8080"
-echo ""
-echo "🔑 פרטי התחברות:"
-echo "   משתמש: admin"
-echo "   סיסמה: (מוצגת למעלה)"
-echo ""
-echo "💡 טיפ: אם פורט 8080 תפוס, השתמש בפורט אחר:"
-echo "   kubectl port-forward svc/argocd-server -n argocd 8081:80"
