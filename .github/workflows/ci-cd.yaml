@@ -67,7 +67,9 @@ jobs:
     if: |
       github.ref == 'refs/heads/main' && 
       needs.detect-changes.outputs.app == 'true' &&
-      needs.security-and-tests.result == 'success'
+      needs.security-and-tests.result == 'success' &&
+      (needs.validate-charts.result == 'success' || needs.validate-charts.result == 'skipped')
+
     outputs:
       image_uri: ${{ steps.build.outputs.image_uri }}
     steps:
