@@ -7,18 +7,18 @@
 ## 🎯 מטרות הפרויקט
 
 ### ✅ Task 1: Infrastructure as Code
-- [x] VPC עם public/private subnets ב-2 AZs
-- [x] EKS cluster עם managed node groups
-- [x] ECR repository לאפליקציה
+- [x] **VPC** עם public/private subnets ב-2 AZs
+- [x] **EKS cluster** עם managed node groups
+- [x] **ECR repository** עם image scanning
 
 ### ✅ Task 2: Kubernetes Application Deployment
-- [x] הורדת אפליקציה מ-S3: `s3://hello-world-node-docker/hello-world-node.tar.gz`
-- [x] CI/CD pipeline עם GitHub Actions
-- [x] פריסה עם ArgoCD
-- [x] איסוף לוגים עם Loki stack
-- [x] High Availability עם multi-AZ replica distribution
-- [x] Horizontal Pod Autoscaler ב-80% vCPU utilization
-- [x] פתרון לבעיית ביצועים בשעה 10:00
+- [x] **הורדת אפליקציה** מ-S3
+- [x] **CI/CD pipeline** עם GitHub Actions
+- [x] **GitOps deployment** עם ArgoCD
+- [x] **Logging stack** עם Loki + Grafana
+- [x] **High Availability** עם multi-AZ
+- [x] **KEDA ScaledObject** עם CPU + cron scaling
+- [x] **Cluster Autoscaler** לניהול Nodes
 
 ## 🏗️ ארכיטקטורה
 
@@ -38,7 +38,7 @@
                                               │                 │
                                               │ ┌─────────────┐ │
                                               │ │ Loki        │ │
-                                              │ │ Logging     │ │
+                                              │ │ Grafana     │ │
                                               │ └─────────────┘ │
                                               └─────────────────┘
 ```
@@ -52,7 +52,9 @@
 | **EKS** | 1.33 | Kubernetes cluster |
 | **ArgoCD** | 8.1.3 | GitOps deployment |
 | **Loki** | 6.31.0 | Log aggregation |
-| **GitHub Actions** | Latest | CI/CD pipeline |
+| **GitHub Actions** |  | CI/CD pipeline |
+| **Helm** | 3.18.4 | Package Manager |
+
 
 ## 🚀 התקנה והפעלה
 
@@ -95,8 +97,9 @@ chmod +x logging/install-loki.sh
 ### שלב 5: פריסת האפליקציה
 
 ```bash
-kubectl apply -f k8s/
-kubectl apply -f argocd/hello-world-app.yaml
+helm upgrade --install hello-world-node ./helm/hello-world-node \
+  --namespace default \
+  --create-namespace
 ```
 
 ## 📊 Monitoring & Observability
@@ -104,7 +107,6 @@ kubectl apply -f argocd/hello-world-app.yaml
 ### Logs
 - **Loki**: איסוף לוגים מכל pods
 - **Grafana**: visualization וניתוח
-- **Promtail**: log shipping
 
 ### Metrics
 - **Prometheus**: איסוף metrics
@@ -166,8 +168,8 @@ spec:
 strategy:
   type: RollingUpdate
   rollingUpdate:
-    maxSurge: 1
-    maxUnavailable: 0
+    maxSurge: 50%
+    maxUnavailable: 0%
 ```
 
 ### Pod Disruption Budget
@@ -192,13 +194,6 @@ spec:
 - Automated sync
 - Rollback capabilities
 - Health monitoring
-
-## 📝 תיעוד נוסף
-
-- [Best Practices](./docs/best-practices.md)
-- [Troubleshooting](./docs/troubleshooting.md)
-- [Architecture](./docs/architecture.md)
-- [Project Structure](./project-structure.md)
 
 ## 🧪 בדיקות
 
@@ -264,7 +259,6 @@ kubectl logs -n logging -l app=promtail
 ## 📞 תמיכה
 
 לשאלות או בעיות:
-- בדוק את [Troubleshooting Guide](./docs/troubleshooting.md)
 - פתח Issue ב-GitHub
 - פנה למפתח הפרויקט
 
