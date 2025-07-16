@@ -1,0 +1,97 @@
+# Image configuration
+image:
+  repository: 760370564012.dkr.ecr.us-east-1.amazonaws.com/omer/hello-world-node
+  tag: "cc3a115a6c03da5691303f79a593a0c8c4d8d462"
+
+# Strategy configuration
+strategy:
+  type: RollingUpdate
+  rollingUpdate:
+    maxSurge: 50%
+    maxUnavailable: 0%
+
+# Resources
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
+
+# Probes
+livenessProbe:
+  httpGet:
+    path: /health
+    port: 3000
+  initialDelaySeconds: 15
+  periodSeconds: 20
+  timeoutSeconds: 5
+  failureThreshold: 3
+
+readinessProbe:
+  httpGet:
+    path: /ready
+    port: 3000
+  initialDelaySeconds: 5
+  periodSeconds: 10
+  timeoutSeconds: 3
+  failureThreshold: 3
+
+# Environment variables
+env:
+  - name: NODE_ENV
+    value: "production"
+  - name: PORT
+    value: "3000"
+
+# Service configuration
+service:
+  name: hello-world-node-service
+  type: ClusterIP
+  port: 80
+  targetPort: 3000
+  protocol: TCP
+
+# PDB configuration
+pdb:
+  minAvailable: 2
+
+# Affinity (מהקובץ המקורי בדיוק)
+affinity:
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          labelSelector:
+            matchExpressions:
+              - key: app
+                operator: In
+                values:
+                  - hello-world-node
+          topologyKey: topology.kubernetes.io/zone
+      - weight: 80
+        podAffinityTerm:
+          labelSelector:
+            matchExpressions:
+              - key: app
+                operator: In
+                values:
+                  - hello-world-node
+          topologyKey: kubernetes.io/hostname
+
+# KEDA scaling configuration
+scaling:
+  minReplicaCount: 3
+  maxReplicaCount: 10
+  pollingInterval: 30
+  cooldownPeriod: 300
+  triggers:
+    cpu:
+      type: Utilization
+      value: "80"
+    cron:
+      timezone: Asia/Jerusalem
+      start: "45 9 * * *"
+      end: "0 13 * * *"
+      desiredReplicas: "6"

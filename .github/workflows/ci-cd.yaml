@@ -5,12 +5,12 @@ on:
     branches: [ main ]
     paths:
       - 'app/**'
-      - 'k8s/**'
+      - 'charts/**'
   pull_request:
     branches: [ main ]
     paths:
       - 'app/**'
-      - 'k8s/**'
+      - 'charts/**'
   workflow_dispatch:
 
 env:
@@ -23,7 +23,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       app: ${{ steps.filter.outputs.app == 'true' || github.event_name == 'workflow_dispatch' }}
-      k8s: ${{ steps.filter.outputs.k8s == 'true' || github.event_name == 'workflow_dispatch' }}
+      charts: ${{ steps.filter.outputs.charts == 'true' || github.event_name == 'workflow_dispatch' }}
     steps:
       - uses: actions/checkout@v4
 
@@ -35,8 +35,8 @@ jobs:
           filters: |
             app:
               - 'app/**'
-            k8s:
-              - 'k8s/**'
+            charts:
+              - 'charts/**'
 
       - name: Manual run - test all
         if: github.event_name == 'workflow_dispatch'
@@ -107,21 +107,25 @@ jobs:
           format: sarif
           output: trivy-results.sarif
 
-  # Kubernetes validation - only for k8s changes
-  validate-k8s:
+  validate-charts:
     runs-on: ubuntu-latest
     needs: detect-changes
-    if: needs.detect-changes.outputs.k8s == 'true'
+    if: needs.detect-changes.outputs.charts == 'true'
     steps:
       - uses: actions/checkout@v4
 
-      # K8s manifest validation
-      - name: Validate Kubernetes manifests
-        uses: azure/k8s-lint@v3
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
         with:
-          manifests: k8s/
-          lintType: kubeconform,dryrun
-          kubeconformOpts: -ignore-missing-schemas
+          version: v4.3.0
+
+      - name: Set up chart-testing
+        uses: helm/chart-testing-action@v2.7.0
+
+      - name: Lint Helm chart
+        run: |
+          ct lint --charts charts/hello-world-node
+          echo "✅ Helm chart validation completed"
 
   # Update manifests - only on main after successful build
   update-manifest:
@@ -132,51 +136,48 @@ jobs:
       needs.detect-changes.outputs.app == 'true' &&
       needs.build-and-push.result == 'success'
     permissions:
-      contents: write  # Allow pushing back to repo
+      contents: write
     steps:
       - uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      # Update manifest - always runs when this job runs
-      - name: Update deployment manifest
+      - name: Update Helm values
         run: |
-          yq e '.spec.template.spec.containers[0].image = "${{ needs.build-and-push.outputs.image_uri }}"' -i k8s/deployment.yaml
-          yq e '.metadata.labels.version = "${{ github.sha }}"' -i k8s/deployment.yaml
-          yq e '.spec.template.metadata.labels.version = "${{ github.sha }}"' -i k8s/deployment.yaml
+          yq e '.image.tag = "${{ github.sha }}"' -i charts/hello-world-node/values.yaml
 
       # Commit changes
       - name: Commit and push changes
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          
+
           if git diff --quiet; then
             echo "No changes to commit"
             exit 0
           fi
-          
-          git add k8s/
-          git commit -m "🚀 Update k8s manifests to ${{ github.sha }}"
+
+          git add charts/  
+          git commit -m "🚀 Update Helm chart to ${{ github.sha }}"
           git push
   # PR feedback
   pr-checks:
     if: github.event_name == 'pull_request' && always()
     runs-on: ubuntu-latest
-    needs: [security-and-tests, validate-k8s]
+    needs: [security-and-tests, validate-charts]
     steps:
       - name: PR Check Summary
         uses: actions/github-script@v7
         with:
           script: |
             const securityResult = '${{ needs.security-and-tests.result }}';
-            const k8sResult = '${{ needs.validate-k8s.result }}';
+            const chartsResult = '${{ needs.validate-charts.result }}';
             
             // Jobs that ran need to succeed, skipped jobs are OK
             const securityOk = securityResult === 'skipped' || securityResult === 'success';
-            const k8sOk = k8sResult === 'skipped' || k8sResult === 'success';
+            const chartsOk = chartsResult === 'skipped' || chartsResult === 'success';
             
-            const status = securityOk && k8sOk 
+            const status = securityOk && chartsOk 
               ? '✅ All checks passed! Ready to merge.'
               : '❌ Some checks failed. Please review.';
             

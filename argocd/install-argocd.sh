@@ -14,7 +14,7 @@ helm repo update
 
 # התקנת ArgoCD
 echo "🔧 מתקין ArgoCD..."
-helm install argocd argo/argo-cd \
+helm upgrade --install argocd argo/argo-cd \
   --namespace argocd \
   --create-namespace \
   --version 8.1.3 \
@@ -36,6 +36,16 @@ echo "👤 יוצר ServiceAccount עבור ArgoCD..."
 kubectl apply -f serviceaccount.yaml
 
 echo "✅ ArgoCD הותקן בהצלחה!"
+
+# הגדרת Application (אם הקובץ קיים)
+if [ -f "hello-world-app.yaml" ]; then
+    echo "📋 מגדיר Application ב-ArgoCD..."
+    kubectl apply -f hello-world-app.yaml
+    echo "✅ Application הוגדר!"
+else
+    echo "⚠️  קובץ hello-world-app.yaml לא נמצא"
+    echo "   הגדר את האפליקציה ידנית דרך UI או CLI"
+fi
 
 # הוראות גישה
 echo ""

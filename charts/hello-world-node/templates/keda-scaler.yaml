@@ -1,0 +1,54 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+ name: hello-world-node-pdb
+ namespace: {{ .Release.Namespace }}
+spec:
+ minAvailable: {{ .Values.pdb.minAvailable }}
+ selector:
+   matchLabels:
+     app: hello-world-node
+---
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+ name: hello-world-node-scaler
+ namespace: {{ .Release.Namespace }}
+spec:
+ scaleTargetRef:
+   name: hello-world-node
+ minReplicaCount: {{ .Values.scaling.minReplicaCount }}
+ maxReplicaCount: {{ .Values.scaling.maxReplicaCount }}
+ pollingInterval: {{ .Values.scaling.pollingInterval }}
+ cooldownPeriod: {{ .Values.scaling.cooldownPeriod }}
+ advanced:
+   horizontalPodAutoscalerConfig:
+     behavior:
+       scaleUp:
+         stabilizationWindowSeconds: 15
+         policies:
+         - type: Percent
+           value: 300
+           periodSeconds: 15
+         - type: Pods
+           value: 5
+           periodSeconds: 15
+         selectPolicy: Max
+       scaleDown:
+         stabilizationWindowSeconds: 300
+         policies:
+         - type: Percent
+           value: 10
+           periodSeconds: 60
+         selectPolicy: Min
+ triggers:
+ - type: cpu
+   metadata:
+     type: {{ .Values.scaling.triggers.cpu.type }}
+     value: {{ .Values.scaling.triggers.cpu.value | quote }}
+ - type: cron
+   metadata:
+     timezone: {{ .Values.scaling.triggers.cron.timezone }}
+     start: {{ .Values.scaling.triggers.cron.start | quote }}
+     end: {{ .Values.scaling.triggers.cron.end | quote }}
+     desiredReplicas: {{ .Values.scaling.triggers.cron.desiredReplicas | quote }}

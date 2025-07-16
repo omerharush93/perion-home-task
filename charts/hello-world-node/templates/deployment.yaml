@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hello-world-node
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: hello-world-node
+    version: {{ .Values.image.tag | quote }}
+spec:
+  strategy:
+    {{- toYaml .Values.strategy | nindent 4 }}
+  selector:
+    matchLabels:
+      app: hello-world-node
+  template:
+    metadata:
+      labels:
+        app: hello-world-node
+        version: {{ .Values.image.tag | quote }}
+    spec:
+      affinity:
+        {{- toYaml .Values.affinity | nindent 8 }}
+      containers:
+        - name: hello-world-node
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          ports:
+            - containerPort: 3000
+              name: http
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          livenessProbe:
+            {{- toYaml .Values.livenessProbe | nindent 12 }}
+          readinessProbe:
+            {{- toYaml .Values.readinessProbe | nindent 12 }}
+          env:
+            {{- toYaml .Values.env | nindent 12 }}
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30

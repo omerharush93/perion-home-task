@@ -11,7 +11,7 @@ spec:
   source:
     repoURL: https://github.com/omerharush93/perion-home-task.git
     targetRevision: main
-    path: k8s
+    path: charts/hello-world-node
   destination:
     server: https://kubernetes.default.svc
     namespace: default
