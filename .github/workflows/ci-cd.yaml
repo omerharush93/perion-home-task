@@ -22,8 +22,8 @@ jobs:
   detect-changes:
     runs-on: ubuntu-latest
     outputs:
-      app: ${{ steps.filter.outputs.app == 'true' || github.event_name == 'workflow_dispatch' }}
-      charts: ${{ steps.filter.outputs.charts == 'true' || github.event_name == 'workflow_dispatch' }}
+      app: ${{ (steps.filter.outputs.app == 'true') || (github.event_name == 'workflow_dispatch') }}
+      charts: ${{ (steps.filter.outputs.charts == 'true') || (github.event_name == 'workflow_dispatch') }}
     steps:
       - uses: actions/checkout@v4
 
@@ -63,12 +63,13 @@ jobs:
   # Build and push - only on main branch
   build-and-push:
     runs-on: ubuntu-latest
-    needs: [detect-changes, security-and-tests]
+    needs: [detect-changes, security-and-tests, validate-charts]
     if: |
       github.ref == 'refs/heads/main' &&
-      (needs.detect-changes.outputs.app == 'true' || github.event_name == 'workflow_dispatch') &&
+      needs.detect-changes.outputs.app == 'true' &&
       needs.security-and-tests.result == 'success' &&
       (needs.validate-charts.result == 'success' || needs.validate-charts.result == 'skipped')
+
 
     outputs:
       image_uri: ${{ steps.build.outputs.image_uri }}
