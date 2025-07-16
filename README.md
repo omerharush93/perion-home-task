@@ -61,7 +61,13 @@ A comprehensive DevOps project for the Perion home assignment, including infrast
 
 ```bash
 # Install required tools
-./setup-requirements.md
+./docs/setup-requirements.md
+```
+
+### Connect to the EKS Cluster
+Before running any `kubectl` commands, make sure you are connected to the EKS cluster:
+```bash
+aws eks update-kubeconfig --region us-east-1 --name omer-perion-cluster
 ```
 
 ### Step 1: Provision Infrastructure
@@ -259,3 +265,16 @@ MIT License - see [LICENSE](LICENSE) for details.
 ---
 
 **Built for Perion DevOps Home Task** 🎯 
+
+## 🔗 Useful Links
+
+### Grafana Dashboard
+- Direct URL: [http://aef6637b788c04b40a1f40454ab0adf6-1475231150.us-east-1.elb.amazonaws.com/](http://aef6637b788c04b40a1f40454ab0adf6-1475231150.us-east-1.elb.amazonaws.com/)
+- (If using port-forward: `kubectl port-forward svc/grafana -n logging 3000:80`)
+- Open in browser: [http://localhost:3000](http://localhost:3000)
+- Default credentials: **Username:** admin  **Password:** admin123
+
+### ArgoCD UI
+- Port-forward: `kubectl port-forward svc/argocd-server -n argocd 8080:80`
+- Open in browser: [http://localhost:8080](http://localhost:8080)
+- Default credentials: **Username:** admin  **Password:** (see install output) 
