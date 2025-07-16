@@ -55,11 +55,5 @@ temp/
 *.bak
 *.backup
 
-# Application specific
-app/hello-world-node.tar.gz
-
-# Scripts
-scripts/
-
 01-assignment-prompt.md
 project-structure.md
