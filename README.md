@@ -59,10 +59,7 @@ For a detailed explanation of the folder and file organization, see [docs/projec
 
 ### Prerequisites
 
-Install all required tools for infrastructure, Kubernetes, and CI/CD:
-```bash
-./docs/setup-requirements.md
-```
+Install all required tools for infrastructure, Kubernetes, and CI/CD: [docs/setup-requirements.md](./docs.setup-requirements.md).
 
 ### Step 1: Provision Infrastructure
 This script provisions the AWS infrastructure (VPC, EKS, IAM, ECR) using Terraform.
