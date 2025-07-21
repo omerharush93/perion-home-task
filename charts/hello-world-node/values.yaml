@@ -48,7 +48,7 @@ service:
   protocol: TCP
 # PDB configuration
 pdb:
-  minAvailable: 3
+  minAvailable: 2
 # Affinity
 affinity:
   podAntiAffinity:
