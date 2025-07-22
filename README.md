@@ -178,7 +178,7 @@ strategy:
 apiVersion: policy/v1
 kind: PodDisruptionBudget
 spec:
-  minAvailable: 3
+  minAvailable: 2
 ```
 
 ## ⚡ Performance Solution - 10:00 AM
